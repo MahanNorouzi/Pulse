@@ -27,7 +27,7 @@ class User
 
     public function findById(int $id): ?array
     {
-        $stmt = $this->db->prepare("SELECT id, username, email, name, bio, avatar, created_at FROM users WHERE id = ?");
+        $stmt = $this->db->prepare("SELECT id, username, email, full_name AS name, bio, profile_image AS avatar, created_at FROM users WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
@@ -35,9 +35,37 @@ class User
     public function create(string $username, string $email, string $password, string $name): int
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO users (username, email, password, name) VALUES (?, ?, ?, ?)"
+            "INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)"
         );
         $stmt->execute([$username, $email, password_hash($password, PASSWORD_BCRYPT), $name]);
         return (int) $this->db->lastInsertId();
+    }
+
+    public function update(int $id, array $fields): bool
+    {
+        $allowed = ['username', 'full_name', 'bio', 'profile_image', 'email'];
+        $set = [];
+        $values = [];
+        foreach ($fields as $k => $v) {
+            if (!in_array($k, $allowed)) continue;
+            $set[] = "{$k} = ?";
+            $values[] = $v;
+        }
+        if (empty($set)) return false;
+        $values[] = $id;
+        $sql = "UPDATE users SET " . implode(', ', $set) . " WHERE id = ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($values);
+        return $stmt->rowCount() > 0;
+    }
+
+    public function search(string $q, int $limit = 20, int $offset = 0): array
+    {
+        $like = '%' . $q . '%';
+        $stmt = $this->db->prepare(
+            "SELECT id, username, full_name AS name, bio, profile_image AS avatar FROM users WHERE username LIKE ? OR full_name LIKE ? LIMIT ? OFFSET ?"
+        );
+        $stmt->execute([$like, $like, $limit, $offset]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
