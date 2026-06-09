@@ -23,7 +23,7 @@ class UserController
 
     public function update(int $id): void
     {
-        session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         $me = $_SESSION['user_id'] ?? null;
         if (!$me || $me !== $id) {
             Response::error('Unauthorized', 401);

@@ -35,3 +35,4 @@ backend/sessions/
 .env
 config/database.php
 cookies.txt
+api_test.php

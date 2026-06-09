@@ -41,29 +41,33 @@ class Follow
 
     public function getFollowers(int $userId, int $limit = 50, int $offset = 0): array
     {
-        $stmt = $this->db->prepare(
-            "SELECT u.id, u.username, u.full_name AS name, u.profile_image AS avatar
+        $sql = "SELECT u.id, u.username, u.full_name AS name, u.profile_image AS avatar
              FROM follows f
              JOIN users u ON f.follower_id = u.id
              WHERE f.following_id = ?
              ORDER BY f.created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->execute([$userId, $limit, $offset]);
+             LIMIT ? OFFSET ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $userId, PDO::PARAM_INT);
+        $stmt->bindValue(2, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(3, $offset, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getFollowing(int $userId, int $limit = 50, int $offset = 0): array
     {
-        $stmt = $this->db->prepare(
-            "SELECT u.id, u.username, u.full_name AS name, u.profile_image AS avatar
+        $sql = "SELECT u.id, u.username, u.full_name AS name, u.profile_image AS avatar
              FROM follows f
              JOIN users u ON f.following_id = u.id
              WHERE f.follower_id = ?
              ORDER BY f.created_at DESC
-             LIMIT ? OFFSET ?"
-        );
-        $stmt->execute([$userId, $limit, $offset]);
+             LIMIT ? OFFSET ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, $userId, PDO::PARAM_INT);
+        $stmt->bindValue(2, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(3, $offset, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

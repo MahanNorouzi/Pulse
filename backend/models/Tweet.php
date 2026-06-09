@@ -20,15 +20,17 @@ class Tweet
 
     public function findById(int $id): ?array
     {
-        $stmt = $this->db->prepare("
-            SELECT t.*, u.username, u.name, u.avatar,
+        $stmt = $this->db->prepare(
+            "SELECT t.*, u.username, u.full_name AS name, u.profile_image AS avatar,
                    (SELECT COUNT(*) FROM likes WHERE tweet_id = t.id) as likes_count,
                    EXISTS(SELECT 1 FROM likes WHERE tweet_id = t.id AND user_id = ?) as is_liked
             FROM tweet t
             JOIN users u ON t.user_id = u.id
-            WHERE t.id = ?
-        ");
-        $stmt->execute([($_SESSION['user_id'] ?? 0), $id]);
+            WHERE t.id = ?"
+        );
+        $stmt->bindValue(1, ($_SESSION['user_id'] ?? 0), PDO::PARAM_INT);
+        $stmt->bindValue(2, $id, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
@@ -41,32 +43,37 @@ class Tweet
 
     public function getFeed(int $limit = 20, int $offset = 0): array
     {
-        $stmt = $this->db->prepare("
-            SELECT t.*, u.username, u.name, u.avatar,
+        $sql = "SELECT t.*, u.username, u.full_name AS name, u.profile_image AS avatar,
                    (SELECT COUNT(*) FROM likes WHERE tweet_id = t.id) as likes_count,
                    EXISTS(SELECT 1 FROM likes WHERE tweet_id = t.id AND user_id = ?) as is_liked
             FROM tweet t
             JOIN users u ON t.user_id = u.id
             ORDER BY t.created_at DESC
-            LIMIT ? OFFSET ?
-        ");
-        $stmt->execute([($_SESSION['user_id'] ?? 0), $limit, $offset]);
+            LIMIT ? OFFSET ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, ($_SESSION['user_id'] ?? 0), PDO::PARAM_INT);
+        $stmt->bindValue(2, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(3, $offset, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getUserTweets(int $userId, int $limit = 20, int $offset = 0): array
     {
-        $stmt = $this->db->prepare("
-            SELECT t.*, u.username, u.name, u.avatar,
+        $sql = "SELECT t.*, u.username, u.full_name AS name, u.profile_image AS avatar,
                    (SELECT COUNT(*) FROM likes WHERE tweet_id = t.id) as likes_count,
                    EXISTS(SELECT 1 FROM likes WHERE tweet_id = t.id AND user_id = ?) as is_liked
             FROM tweet t
             JOIN users u ON t.user_id = u.id
             WHERE t.user_id = ?
             ORDER BY t.created_at DESC
-            LIMIT ? OFFSET ?
-        ");
-        $stmt->execute([($_SESSION['user_id'] ?? 0), $userId, $limit, $offset]);
+            LIMIT ? OFFSET ?";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(1, ($_SESSION['user_id'] ?? 0), PDO::PARAM_INT);
+        $stmt->bindValue(2, $userId, PDO::PARAM_INT);
+        $stmt->bindValue(3, $limit, PDO::PARAM_INT);
+        $stmt->bindValue(4, $offset, PDO::PARAM_INT);
+        $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

@@ -37,7 +37,7 @@ class AuthController
 
         $id = $this->user->create($data['username'], $data['email'], $data['password'], $data['name']);
 
-        session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         $_SESSION['user_id'] = $id;
 
         Response::success(['id' => $id], 'Registered successfully', 201);
@@ -60,7 +60,7 @@ class AuthController
             Response::error('Invalid credentials', 401);
         }
 
-        session_start();
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         $_SESSION['user_id'] = $user['id'];
 
         unset($user['password']);
