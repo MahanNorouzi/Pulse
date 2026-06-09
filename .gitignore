@@ -34,3 +34,4 @@ backend/sessions/
 # Api keys and database passwords
 .env
 config/database.php
+cookies.txt

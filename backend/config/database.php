@@ -1,5 +1,3 @@
-<!-- Connecting DB to Backend -->
-
 
 <?php
 class Database
