@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build files
+frontend/dist/
+frontend/build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Database
+*.sql.backup
+*.db
+
+# Uploads 
+uploads/
+backend/uploads/
+
+# Session files
+backend/sessions/
+
+# Api keys and database passwords
+.env
+config/database.php
