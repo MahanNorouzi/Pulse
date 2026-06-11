@@ -1,1 +1,28 @@
 @import "tailwindcss";
+@theme {
+  --color-bg: #101214;
+  --color-surface: #181b1f;
+  --color-card: #21252b;
+
+  --color-text: #f4f1eb;
+  --color-muted: #a5a09a;
+
+  --color-accent: #c9a86a;
+  --color-danger: #c0392b;
+
+  --font-sans: "Inter", sans-serif;
+
+  --text-h1: 2.25rem;
+  --text-h2: 1.875rem;
+  --text-h3: 1.5rem;
+  --text-h4: 1.25rem;
+  --text-h5: 1.125rem;
+  --text-h6: 1rem;
+
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.7;
+}
