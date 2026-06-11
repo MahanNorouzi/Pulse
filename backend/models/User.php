@@ -27,7 +27,7 @@ class User
 
     public function findById(int $id): ?array
     {
-        $stmt = $this->db->prepare("SELECT id, username, email, full_name AS name, bio, profile_image AS avatar, created_at FROM users WHERE id = ?");
+        $stmt = $this->db->prepare("SELECT id, username, email, full_name AS name, bio, profile_image AS avatar, role, created_at FROM users WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }

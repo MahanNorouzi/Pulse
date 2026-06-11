@@ -4,12 +4,14 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/TweetController.php';
 require_once __DIR__ . '/../controllers/UserController.php';
 require_once __DIR__ . '/../controllers/FollowController.php';
+require_once __DIR__ . '/../controllers/CommentController.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 
 $auth   = new AuthController();
 $tweet  = new TweetController();
 $user   = new UserController();
 $follow = new FollowController();
+$comment = new CommentController();
 $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
 
 $uri        = $_SERVER['REQUEST_URI'] ?? '/';
@@ -60,6 +62,11 @@ match (true) {
 
     // Search
     $method === 'GET'    && $path === 'api/search'                     => $user->search(),
+
+    // Comments
+    $method === 'POST'   && preg_match('#^api/tweets/(\d+)/comments$#', $path, $c) => $auth_() && $comment->create((int)$c[1]),
+    $method === 'GET'    && preg_match('#^api/tweets/(\d+)/comments$#', $path, $c) => $comment->list((int)$c[1]),
+    $method === 'DELETE' && preg_match('#^api/comments/(\d+)$#', $path, $c) => $auth_() && $comment->delete((int)$c[1]),
 
     default => Response::error('Not found', 404),
 };
