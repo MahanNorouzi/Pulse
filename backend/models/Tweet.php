@@ -34,10 +34,15 @@ class Tweet
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function delete(int $id, int $userId): bool
+    public function delete(int $id, int $userId, bool $isAdmin = false): bool
     {
-        $stmt = $this->db->prepare("DELETE FROM tweet WHERE id = ? AND user_id = ?");
-        $stmt->execute([$id, $userId]);
+        if ($isAdmin) {
+            $stmt = $this->db->prepare("DELETE FROM tweet WHERE id = ?");
+            $stmt->execute([$id]);
+        } else {
+            $stmt = $this->db->prepare("DELETE FROM tweet WHERE id = ? AND user_id = ?");
+            $stmt->execute([$id, $userId]);
+        }
         return $stmt->rowCount() > 0;
     }
 

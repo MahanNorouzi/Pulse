@@ -30,7 +30,16 @@ class TweetController
     public function delete(int $id): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        if (!$this->tweet->delete($id, $_SESSION['user_id'])) {
+        $isAdmin = false;
+        // fetch user role
+        if (!empty($_SESSION['user_id'])) {
+            require_once __DIR__ . '/../models/User.php';
+            $uModel = new User();
+            $u = $uModel->findById($_SESSION['user_id']);
+            $isAdmin = isset($u['role']) && $u['role'] === 'admin';
+        }
+
+        if (!$this->tweet->delete($id, $_SESSION['user_id'] ?? 0, $isAdmin)) {
             Response::error('Tweet not found or unauthorized', 404);
         }
         Response::success(null, 'Tweet deleted');
