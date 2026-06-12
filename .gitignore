@@ -35,7 +35,6 @@ backend/sessions/
 .env
 config/database.php
 cookies.txt
-api_test.php
 tests/*.txt
 tests/*.log
 tests/*.cache
