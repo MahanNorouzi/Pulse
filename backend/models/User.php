@@ -62,10 +62,18 @@ class User
     public function search(string $q, int $limit = 20, int $offset = 0): array
     {
         $like = '%' . $q . '%';
-        $stmt = $this->db->prepare(
-            "SELECT id, username, full_name AS name, bio, profile_image AS avatar FROM users WHERE username LIKE ? OR full_name LIKE ? LIMIT ? OFFSET ?"
-        );
-        $stmt->execute([$like, $like, $limit, $offset]);
+        // PDO may quote bound parameters which can break LIMIT/OFFSET in some drivers.
+        // Cast to integers and inject directly into the SQL after validation.
+        $limit = max(0, (int) $limit);
+        $offset = max(0, (int) $offset);
+
+        $sql = "SELECT id, username, full_name AS name, bio, profile_image AS avatar
+                FROM users
+                WHERE username LIKE ? OR full_name LIKE ?
+                LIMIT {$limit} OFFSET {$offset}";
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$like, $like]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

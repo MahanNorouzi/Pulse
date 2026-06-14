@@ -22,10 +22,10 @@ export default function Profile() {
   // safely parse JSON responses and log raw text when parse fails
   async function parseJsonSafe(res, label) {
     try {
-      return await res.json();
+      return await res.clone().json();
     } catch (err) {
       try {
-        const txt = await res.text();
+        const txt = await res.clone().text();
         console.error(`${label} - invalid JSON response:\n`, txt);
         return { __raw_text: txt };
       } catch (e) {
@@ -316,164 +316,285 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <header className="mb-6 flex items-center gap-4">
-        <img
-          src={user?.avatar || "/Pulse/backend/public/uploads/user.jpg"}
-          alt={user?.username}
-          className="w-16 h-16 rounded-full object-cover"
-          onError={(e) =>
-            (e.currentTarget.src = "/Pulse/backend/public/uploads/user.jpg")
-          }
-        />
-        <div>
-          <h2 className="text-h4 font-semibold">
-            {user?.name || "@" + username}
-          </h2>
-          <div className="text-muted">@{user?.username || username}</div>
-          <p className="text-small mt-1">{user?.bio}</p>
-          <div className="mt-2 text-small text-muted flex gap-4 items-center">
-            <div>
-              <strong>{followersCount}</strong> Followers
-            </div>
-            <div>
-              <strong>{followingCount}</strong> Following
-            </div>
-            {currentUser && (
-              <div>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-1 rounded bg-surface border"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-            {/* Refresh button removed per user request */}
-            {currentUser && user?.id && currentUser.id !== user?.id && (
-              <div>
-                {isFollowing ? (
+    <div className="min-h-screen bg-bg text-text">
+      <div className="max-w-[1600px] mx-auto px-4 lg:px-6 py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,700px)_1fr] gap-6">
+          {/* LEFT SIDEBAR */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-6">
+              <div className="bg-card rounded-3xl p-6">
+                <div className="flex items-center gap-4">
+                  <img
+                    src={
+                      user?.avatar ||
+                      user?.profile_image ||
+                      "/Pulse/backend/public/uploads/user.jpg"
+                    }
+                    alt={user?.username}
+                    className="w-20 h-20 rounded-full object-cover"
+                    onError={(e) =>
+                      (e.currentTarget.src =
+                        "/Pulse/backend/public/uploads/user.jpg")
+                    }
+                  />
+
+                  <div>
+                    <h2 className="font-semibold text-lg">
+                      {user?.name || "@" + username}
+                    </h2>
+
+                    <div className="text-muted">
+                      @{user?.username || username}
+                    </div>
+                  </div>
+                </div>
+
+                {user?.bio && (
+                  <p className="text-small text-muted mt-4 leading-relaxed">
+                    {user.bio}
+                  </p>
+                )}
+
+                <div className="flex gap-6 mt-5">
+                  <div>
+                    <div className="font-semibold">{followersCount}</div>
+                    <div className="text-small text-muted">Followers</div>
+                  </div>
+
+                  <div>
+                    <div className="font-semibold">{followingCount}</div>
+                    <div className="text-small text-muted">Following</div>
+                  </div>
+                </div>
+
+                {currentUser && (
                   <button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch(
-                          `${API_BASE}/users/${user.id}/follow`,
-                          { method: "DELETE", credentials: "include" },
-                        );
-                        if (res.ok) {
-                          setIsFollowing(false);
-                          setFollowersCount((c) => Math.max(0, c - 1));
-                          try {
-                            window.dispatchEvent(
-                              new CustomEvent("profile:followChanged", {
-                                detail: { userId: user.id, follow: false },
-                              }),
-                            );
-                            window.dispatchEvent(new Event("profile:refresh"));
-                          } catch (e) {}
-                        }
-                      } catch (e) {
-                        console.error("unfollow failed", e);
-                      }
-                    }}
-                    className="px-3 py-1 rounded border"
+                    onClick={handleLogout}
+                    className="mt-5 w-full h-11 rounded-full bg-surface hover:bg-white/5"
                   >
-                    Unfollow
-                  </button>
-                ) : (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch(
-                          `${API_BASE}/users/${user.id}/follow`,
-                          { method: "POST", credentials: "include" },
-                        );
-                        if (res.ok) {
-                          setIsFollowing(true);
-                          setFollowersCount((c) => c + 1);
-                          try {
-                            window.dispatchEvent(
-                              new CustomEvent("profile:followChanged", {
-                                detail: { userId: user.id, follow: true },
-                              }),
-                            );
-                            window.dispatchEvent(new Event("profile:refresh"));
-                          } catch (e) {}
-                        }
-                      } catch (e) {
-                        console.error("follow failed", e);
-                      }
-                    }}
-                    className="px-3 py-1 rounded bg-accent text-bg"
-                  >
-                    Follow
+                    Logout
                   </button>
                 )}
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
 
-      <section className="space-y-4">
-        {tweets.length === 0 && (
-          <div className="text-muted">No tweets found.</div>
-        )}
-        {tweets.map((t) => (
-          <article
-            key={t.id}
-            className="p-4 bg-card rounded-xl border border-white/5"
-          >
-            <div className="flex items-center gap-3 mb-1">
-              <img
-                src={
-                  t.avatar ||
-                  t.user?.avatar ||
-                  "/Pulse/backend/public/uploads/user.jpg"
-                }
-                alt={t.user?.username || t.username}
-                className="w-8 h-8 rounded-full object-cover"
-                onError={(e) =>
-                  (e.currentTarget.src =
-                    "/Pulse/backend/public/uploads/user.jpg")
-                }
-              />
-              <div className="text-small text-muted">
-                <a
-                  href={`/profile/${t.user?.username || t.username}`}
-                  className="font-medium"
-                >
-                  {t.user?.username || t.username}
-                </a>
-              </div>
-            </div>
-            <div className="text-text">
-              {String(t.content || "")
-                .split(/\r?\n/)
-                .map((line, idx) => (
-                  <div key={idx} dir={detectRTL(line) ? "rtl" : "ltr"}>
-                    {line === "" ? <br /> : line}
+                {currentUser && user?.id && currentUser.id !== user.id && (
+                  <div className="mt-3">
+                    {isFollowing ? (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(
+                              `${API_BASE}/users/${user.id}/follow`,
+                              {
+                                method: "DELETE",
+                                credentials: "include",
+                              },
+                            );
+
+                            if (res.ok) {
+                              setIsFollowing(false);
+                              setFollowersCount((c) => Math.max(0, c - 1));
+
+                              window.dispatchEvent(
+                                new CustomEvent("profile:followChanged", {
+                                  detail: {
+                                    userId: user.id,
+                                    follow: false,
+                                  },
+                                }),
+                              );
+                            }
+                          } catch (e) {
+                            console.error(e);
+                          }
+                        }}
+                        className="w-full h-11 rounded-full bg-surface"
+                      >
+                        Following
+                      </button>
+                    ) : (
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(
+                              `${API_BASE}/users/${user.id}/follow`,
+                              {
+                                method: "POST",
+                                credentials: "include",
+                              },
+                            );
+
+                            if (res.ok) {
+                              setIsFollowing(true);
+                              setFollowersCount((c) => c + 1);
+
+                              window.dispatchEvent(
+                                new CustomEvent("profile:followChanged", {
+                                  detail: {
+                                    userId: user.id,
+                                    follow: true,
+                                  },
+                                }),
+                              );
+                            }
+                          } catch (e) {
+                            console.error(e);
+                          }
+                        }}
+                        className="w-full h-11 rounded-full bg-accent text-bg font-medium"
+                      >
+                        Follow
+                      </button>
+                    )}
                   </div>
-                ))}
-            </div>
-            <div className="text-muted text-small mt-2">
-              {new Date(t.created_at || Date.now()).toLocaleString()}
-            </div>
-            {(currentUser?.role === "admin" ||
-              currentUser?.id === t.user_id ||
-              currentUser?.id === t.user?.id) && (
-              <div className="mt-2">
-                <button
-                  onClick={() => handleDelete(t)}
-                  className="px-3 py-1 rounded text-red-400"
-                >
-                  Delete
-                </button>
+                )}
               </div>
-            )}
-          </article>
-        ))}
-      </section>
+            </div>
+          </aside>
+
+          {/* MAIN FEED */}
+          <main className="min-w-0">
+            {/* MOBILE PROFILE */}
+            <div className="lg:hidden bg-card rounded-3xl p-5 mb-6">
+              <div className="flex gap-4">
+                <img
+                  src={
+                    user?.avatar ||
+                    user?.profile_image ||
+                    "/Pulse/backend/public/uploads/user.jpg"
+                  }
+                  alt={user?.username}
+                  className="w-20 h-20 rounded-full object-cover"
+                  onError={(e) =>
+                    (e.currentTarget.src =
+                      "/Pulse/backend/public/uploads/user.jpg")
+                  }
+                />
+
+                <div>
+                  <h2 className="font-semibold text-lg">
+                    {user?.name || "@" + username}
+                  </h2>
+
+                  <div className="text-muted">
+                    @{user?.username || username}
+                  </div>
+
+                  <div className="flex gap-4 mt-2 text-small">
+                    <span>{followersCount} Followers</span>
+                    <span>{followingCount} Following</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* HEADER */}
+            <div
+              className="
+              sticky
+              top-0
+              z-20
+              bg-bg/80
+              backdrop-blur-xl
+              border-b
+              border-white/5
+              mb-4
+            "
+            >
+              <div className="py-4">
+                <h3 className="font-semibold text-lg">Posts</h3>
+              </div>
+            </div>
+
+            <section className="space-y-4">
+              {tweets.length === 0 && (
+                <div className="text-muted">No posts yet.</div>
+              )}
+
+              {tweets.map((t) => (
+                <article
+                  key={t.id}
+                  className="
+                  bg-card
+                  rounded-3xl
+                  p-5
+                  hover:shadow-xl
+                  transition-all
+                "
+                >
+                  <div className="flex gap-3">
+                    <img
+                      src={
+                        t.avatar ||
+                        t.profile_image ||
+                        t.user?.avatar ||
+                        t.user?.profile_image ||
+                        "/Pulse/backend/public/uploads/user.jpg"
+                      }
+                      alt={t.user?.username || t.username}
+                      className="w-12 h-12 rounded-full object-cover"
+                      onError={(e) =>
+                        (e.currentTarget.src =
+                          "/Pulse/backend/public/uploads/user.jpg")
+                      }
+                    />
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <a
+                          href={`/profile/${t.user?.username || t.username}`}
+                          className="font-semibold"
+                        >
+                          {t.user?.username || t.username}
+                        </a>
+                      </div>
+
+                      <div className="mt-3 leading-relaxed">
+                        {String(t.content || "")
+                          .split(/\r?\n/)
+                          .map((line, idx) => (
+                            <div
+                              key={idx}
+                              dir={detectRTL(line) ? "rtl" : "ltr"}
+                            >
+                              {line === "" ? <br /> : line}
+                            </div>
+                          ))}
+                      </div>
+
+                      <div className="mt-4 flex items-center justify-between">
+                        <span className="text-small text-muted">
+                          {new Date(
+                            t.created_at || Date.now(),
+                          ).toLocaleString()}
+                        </span>
+
+                        {(currentUser?.role === "admin" ||
+                          currentUser?.id === t.user_id ||
+                          currentUser?.id === t.user?.id) && (
+                          <button
+                            onClick={() => handleDelete(t)}
+                            className="
+                              px-4
+                              h-9
+                              rounded-full
+                              bg-surface
+                              text-red-400
+                            "
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </section>
+          </main>
+
+          {/* RIGHT SIDEBAR removed */}
+        </div>
+      </div>
     </div>
   );
 }

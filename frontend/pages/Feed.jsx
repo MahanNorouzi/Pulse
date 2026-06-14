@@ -379,185 +379,257 @@ export default function Feed() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h2 className="text-h4 font-semibold mb-4">Your Feed</h2>
-
-      {currentUser && (
-        <div className="mb-4 p-4 bg-card rounded-lg flex items-center gap-4">
-          <img
-            src={
-              currentUser?.avatar || "/Pulse/backend/public/uploads/user.jpg"
-            }
-            alt={currentUser?.username}
-            className="w-16 h-16 rounded-full object-cover"
-            onError={(e) =>
-              (e.currentTarget.src = "/Pulse/backend/public/uploads/user.jpg")
-            }
-          />
-          <div>
-            <a
-              href={`/profile/${currentUser.username}`}
-              className="font-semibold"
-            >
-              {currentUser.name || currentUser.username}
-            </a>
-            <div className="text-muted text-small">@{currentUser.username}</div>
-            <div className="text-small text-muted mt-1">
-              {followersCount} followers · {followingCount} following
-            </div>
-            <div className="mt-2">
-              <button
-                onClick={handleLogout}
-                className="px-2 py-1 rounded bg-surface border"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {currentUser?.role === "admin" && (
-        <div className="mb-4">
-          <button
-            onClick={clearAllTweets}
-            className="px-3 py-1 rounded bg-red-600 text-bg"
-          >
-            Clear all tweets (admin)
-          </button>
-        </div>
-      )}
-
-      <form onSubmit={postTweet} className="mb-6">
-        <label htmlFor="tweet-content" className="block text-muted mb-2">
-          Write a tweet
-        </label>
-        <div className="relative">
-          <textarea
-            id="tweet-content"
-            dir={dir}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="What's happening?"
-            rows={4}
-            className="w-full p-4 rounded-xl bg-surface text-text border border-transparent focus:outline-none focus:ring-2 focus:ring-accent/20"
-          />
-
-          <div className="absolute right-3 bottom-3 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleDir}
-              aria-label="Toggle text direction"
-              className="text-small text-muted"
-            >
-              {dir === "auto" ? "Auto" : dir.toUpperCase()}
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-3 py-1 rounded bg-accent text-bg"
-            >
-              {loading ? "Posting…" : "Tweet"}
-            </button>
-          </div>
-        </div>
-      </form>
-
-      <div className="space-y-4">
-        {tweets.length === 0 && (
-          <div className="text-muted">No tweets yet.</div>
-        )}
-
-        {tweets.map((t) => (
-          <article
-            key={t.id}
-            className="p-4 bg-card rounded-xl border border-white/5"
-          >
-            <div className="flex items-center gap-3 mb-1">
-              <img
-                src={
-                  t.avatar ||
-                  t.user?.avatar ||
-                  "/Pulse/backend/public/uploads/user.jpg"
-                }
-                alt={t.user?.username || t.username}
-                className="w-8 h-8 rounded-full object-cover"
-                onError={(e) =>
-                  (e.currentTarget.src =
-                    "/Pulse/backend/public/uploads/user.jpg")
-                }
-              />
-              <div className="text-small text-muted flex items-center gap-2">
-                <a
-                  href={`/profile/${t.user?.username || t.username}`}
-                  className="font-medium"
+    <div className="min-h-screen bg-bg text-text">
+      {" "}
+      <div className="mx-auto max-w-[1600px] px-4 lg:px-6 py-6">
+        {" "}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,700px)_1fr] gap-6">
+          {" "}
+          {/* LEFT SIDEBAR */}{" "}
+          <aside className="hidden lg:block">
+            {" "}
+            <div className="sticky top-6">
+              {" "}
+              <div className="mb-4">
+                {" "}
+                <h1 className="text-h3 font-bold">Pulse</h1>{" "}
+              </div>{" "}
+              {currentUser && (
+                <div className="bg-card rounded-3xl p-6">
+                  {" "}
+                  <img
+                    src={
+                      currentUser?.avatar ||
+                      "/Pulse/backend/public/uploads/user.jpg"
+                    }
+                    alt={currentUser?.username}
+                    className="w-20 h-20 rounded-full object-cover"
+                    onError={(e) =>
+                      (e.currentTarget.src =
+                        "/Pulse/backend/public/uploads/user.jpg")
+                    }
+                  />{" "}
+                  <div className="mt-4">
+                    {" "}
+                    <a
+                      href={`/profile/${currentUser.username}`}
+                      className="font-semibold text-lg"
+                    >
+                      {" "}
+                      {currentUser.name || currentUser.username}{" "}
+                    </a>{" "}
+                    <div className="text-muted text-small">
+                      {" "}
+                      @{currentUser.username}{" "}
+                    </div>{" "}
+                    <div className="mt-4 flex gap-6">
+                      {" "}
+                      <div>
+                        {" "}
+                        <div className="font-semibold">
+                          {" "}
+                          {followersCount}{" "}
+                        </div>{" "}
+                        <div className="text-small text-muted">
+                          {" "}
+                          Followers{" "}
+                        </div>{" "}
+                      </div>{" "}
+                      <div>
+                        {" "}
+                        <div className="font-semibold">
+                          {" "}
+                          {followingCount}{" "}
+                        </div>{" "}
+                        <div className="text-small text-muted">
+                          {" "}
+                          Following{" "}
+                        </div>{" "}
+                      </div>{" "}
+                    </div>{" "}
+                    <button
+                      onClick={handleLogout}
+                      className=" mt-5 w-full h-11 rounded-full bg-surface hover:bg-white/5 "
+                    >
+                      {" "}
+                      Logout{" "}
+                    </button>{" "}
+                  </div>{" "}
+                </div>
+              )}{" "}
+              {currentUser?.role === "admin" && (
+                <button
+                  onClick={clearAllTweets}
+                  className=" mt-4 w-full h-11 rounded-full bg-red-600 text-bg "
                 >
-                  {t.user?.username || t.username || "unknown"}
-                </a>
-                {currentUser &&
-                  (t.user?.id || t.user_id) !== currentUser.id &&
-                  (followingIds.has(t.user?.id ?? t.user_id) ? (
-                    <button
-                      onClick={() =>
-                        handleFollowToggle(t.user?.id ?? t.user_id, false)
-                      }
-                      className="text-small px-2 py-1 rounded border"
-                    >
-                      Unfollow
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() =>
-                        handleFollowToggle(t.user?.id ?? t.user_id, true)
-                      }
-                      className="text-small px-2 py-1 rounded bg-accent text-bg"
-                    >
-                      Follow
-                    </button>
-                  ))}
-              </div>
-            </div>
-            <div className="text-text">
-              {String(t.content || "")
-                .split(/\r?\n/)
-                .map((line, idx) => (
-                  <div key={idx} dir={detectRTL(line) ? "rtl" : "ltr"}>
-                    {line === "" ? <br /> : line}
-                  </div>
-                ))}
-            </div>
-            <div className="flex items-center justify-between mt-2">
-              <div className="text-muted text-small">
-                {new Date(t.created_at || Date.now()).toLocaleString()}
-              </div>
-              <div className="flex items-center gap-3 text-small">
+                  {" "}
+                  Clear Tweets{" "}
+                </button>
+              )}{" "}
+            </div>{" "}
+          </aside>{" "}
+          {/* FEED */}{" "}
+          <main className="min-w-0">
+            {" "}
+            <div className=" sticky top-0 z-20 bg-bg/80 backdrop-blur-xl border-b border-white/5 mb-4 ">
+              {" "}
+              <div className="py-4 px-2">
+                {" "}
+                <h2 className="text-h4 font-semibold"> Home </h2>{" "}
+              </div>{" "}
+            </div>{" "}
+            <form onSubmit={postTweet} className="bg-card rounded-3xl p-5 mb-6">
+              {" "}
+              <textarea
+                id="tweet-content"
+                dir={dir}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="What's happening?"
+                rows={4}
+                className=" w-full resize-none bg-transparent outline-none text-text text-[16px] "
+              />{" "}
+              <div className="flex justify-between items-center mt-4">
+                {" "}
                 <button
                   type="button"
-                  onClick={() => handleLike(t)}
-                  aria-pressed={!!t.is_liked}
-                  aria-label={t.is_liked ? "Unlike" : "Like"}
-                  className={`px-2 py-1 rounded ${t.is_liked ? "bg-red-600 text-bg" : "text-muted"}`}
+                  onClick={toggleDir}
+                  className="text-muted text-small"
                 >
-                  ♥ {t.likes_count || 0}
-                </button>
-                {currentUser &&
-                  (currentUser.role === "admin" ||
-                    currentUser.id === t.user_id ||
-                    currentUser.id === t.user?.id) && (
+                  {" "}
+                  {dir === "auto" ? "Auto" : dir.toUpperCase()}{" "}
+                </button>{" "}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className=" h-11 px-5 rounded-full bg-accent text-bg font-medium "
+                >
+                  {" "}
+                  {loading ? "Posting..." : "Post"}{" "}
+                </button>{" "}
+              </div>{" "}
+            </form>{" "}
+            <div className="space-y-4">
+              {" "}
+              {tweets.length === 0 && (
+                <div className="text-muted"> No tweets yet. </div>
+              )}{" "}
+              {tweets.map((t) => (
+                <article
+                  key={t.id}
+                  className=" bg-card rounded-3xl p-5 transition-all hover:shadow-xl "
+                >
+                  {" "}
+                  <div className="flex items-start justify-between">
+                    {" "}
+                    <div className="flex gap-3">
+                      {" "}
+                      <img
+                        src={
+                          t.avatar ||
+                          t.user?.avatar ||
+                          "/Pulse/backend/public/uploads/user.jpg"
+                        }
+                        alt={t.user?.username || t.username}
+                        className="w-12 h-12 rounded-full object-cover"
+                        onError={(e) =>
+                          (e.currentTarget.src =
+                            "/Pulse/backend/public/uploads/user.jpg")
+                        }
+                      />{" "}
+                      <div>
+                        {" "}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {" "}
+                          <a
+                            href={`/profile/${t.user?.username || t.username}`}
+                            className="font-semibold"
+                          >
+                            {" "}
+                            {t.user?.username || t.username || "unknown"}{" "}
+                          </a>{" "}
+                          {currentUser &&
+                            (t.user?.id || t.user_id) !== currentUser.id &&
+                            (followingIds.has(t.user?.id ?? t.user_id) ? (
+                              <button
+                                onClick={() =>
+                                  handleFollowToggle(
+                                    t.user?.id ?? t.user_id,
+                                    false,
+                                  )
+                                }
+                                className=" px-3 h-8 rounded-full bg-surface "
+                              >
+                                {" "}
+                                Following{" "}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleFollowToggle(
+                                    t.user?.id ?? t.user_id,
+                                    true,
+                                  )
+                                }
+                                className=" px-3 h-8 rounded-full bg-accent text-bg "
+                              >
+                                {" "}
+                                Follow{" "}
+                              </button>
+                            ))}{" "}
+                        </div>{" "}
+                        <div className="text-muted text-small mt-1">
+                          {" "}
+                          {new Date(
+                            t.created_at || Date.now(),
+                          ).toLocaleString()}{" "}
+                        </div>{" "}
+                      </div>{" "}
+                    </div>{" "}
+                  </div>{" "}
+                  <div className="mt-4 text-text leading-relaxed">
+                    {" "}
+                    {String(t.content || "")
+                      .split(/\r?\n/)
+                      .map((line, idx) => (
+                        <div key={idx} dir={detectRTL(line) ? "rtl" : "ltr"}>
+                          {" "}
+                          {line === "" ? <br /> : line}{" "}
+                        </div>
+                      ))}{" "}
+                  </div>{" "}
+                  <div className="flex items-center gap-3 mt-5">
+                    {" "}
                     <button
                       type="button"
-                      onClick={() => handleDelete(t)}
-                      aria-label="Delete tweet"
-                      className="px-2 py-1 rounded text-red-400 hover:opacity-80"
+                      onClick={() => handleLike(t)}
+                      aria-pressed={!!t.is_liked}
+                      className={` h-10 px-4 rounded-full ${t.is_liked ? "bg-red-600 text-bg" : "bg-surface text-muted"} `}
                     >
-                      Delete
-                    </button>
-                  )}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+                      {" "}
+                      ♥ {t.likes_count || 0}{" "}
+                    </button>{" "}
+                    {currentUser &&
+                      (currentUser.role === "admin" ||
+                        currentUser.id === t.user_id ||
+                        currentUser.id === t.user?.id) && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(t)}
+                          className=" h-10 px-4 rounded-full bg-surface text-red-400 "
+                        >
+                          {" "}
+                          Delete{" "}
+                        </button>
+                      )}{" "}
+                  </div>{" "}
+                </article>
+              ))}{" "}
+            </div>{" "}
+          </main>{" "}
+          {/* RIGHT SIDEBAR removed per request */}
+        </div>{" "}
+      </div>{" "}
     </div>
   );
 }
