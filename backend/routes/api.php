@@ -40,16 +40,18 @@ match (true) {
     $method === 'GET'  && $path === 'api/me'       => $auth->me(),
 
     $method === 'POST'   && $path === 'api/tweets'           => $auth_() && $tweet->create(),
+    $method === 'POST'   && $path === 'api/tweets/clear'     => $auth_() && $tweet->clearAll(),
     $method === 'GET'    && $path === 'api/tweets'           => $auth_() && $tweet->feed(),
     $method === 'GET'    && $tweetId && !$action             => $auth_() && $tweet->show($tweetId),
     $method === 'DELETE' && $tweetId && !$action             => $auth_() && $tweet->delete($tweetId),
     $method === 'POST'   && $tweetId && $action === 'like'   => $auth_() && $tweet->like($tweetId),
     $method === 'DELETE' && $tweetId && $action === 'like'   => $auth_() && $tweet->unlike($tweetId),
     // User tweets (by user)
-    $method === 'GET'    && $userId !== null                 => $auth_() && $tweet->userTweets($userId),
+    $method === 'GET'    && $userId !== null                 => $tweet->userTweets($userId),
 
     // User profile
     $method === 'GET'    && preg_match('#^api/users/(\d+)$#', $path, $p) => $user->show((int)$p[1]),
+    $method === 'GET'    && preg_match('#^api/users/username/(.+)$#', $path, $pu) => $user->showByUsername(urldecode($pu[1])),
     $method === 'PUT'    && preg_match('#^api/users/(\d+)$#', $path, $p) => $auth_() && $user->update((int)$p[1]),
 
     // Follow/unfollow

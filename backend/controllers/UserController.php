@@ -21,6 +21,15 @@ class UserController
         Response::success($u);
     }
 
+    public function showByUsername(string $username): void
+    {
+        $u = $this->user->findByUsername($username);
+        if (!$u) {
+            Response::error('User not found', 404);
+        }
+        Response::success($u);
+    }
+
     public function update(int $id): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();

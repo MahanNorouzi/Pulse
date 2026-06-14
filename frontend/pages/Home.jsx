@@ -1,4 +1,111 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router";
+
+const API_BASE = "/Pulse/backend/index.php/api";
+
+function useCurrentUser() {
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/me`, { credentials: "include" });
+        if (!res.ok) return;
+        const j = await res.json();
+        const cur = j?.data ?? null;
+        if (mounted) setUser(cur);
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => (mounted = false);
+  }, []);
+  return [user, setUser];
+}
+
+function HeaderAuth() {
+  const [currentUser, setCurrentUser] = useCurrentUser();
+  const [open, setOpen] = useState(false);
+
+  async function handleLogout() {
+    try {
+      const res = await fetch(`${API_BASE}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (res.ok) window.location.replace("/login");
+      else alert("Logout failed");
+    } catch (e) {
+      console.error("logout error", e);
+      alert("Logout failed");
+    }
+  }
+
+  if (!currentUser)
+    return (
+      <div className="flex items-center gap-3">
+        <Link
+          to="/login"
+          className="text-small text-muted hover:text-text transition"
+        >
+          Login
+        </Link>
+        <Link
+          to="/Register"
+          className="bg-accent text-bg px-5 py-2 rounded-full text-small font-medium hover:opacity-90 transition"
+        >
+          Get Started
+        </Link>
+      </div>
+    );
+
+  return (
+    <div className="flex items-center gap-3 relative">
+      <Link
+        to="/feed"
+        className="hidden sm:inline bg-accent text-bg px-4 py-1 rounded-full text-small font-medium hover:opacity-90 transition"
+      >
+        Feed
+      </Link>
+
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2"
+        aria-haspopup="true"
+        aria-expanded={open}
+      >
+        <img
+          src={currentUser?.avatar || "/Pulse/backend/public/uploads/user.jpg"}
+          alt={currentUser?.username}
+          className="w-8 h-8 rounded-full object-cover"
+          onError={(e) =>
+            (e.currentTarget.src = "/Pulse/backend/public/uploads/user.jpg")
+          }
+        />
+        <span className="hidden md:inline text-small">
+          {currentUser.name || currentUser.username}
+        </span>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 mt-2 w-44 bg-card border border-white/5 rounded shadow p-2 z-50">
+          <Link
+            to={`/profile/${currentUser.username}`}
+            className="block px-3 py-2 hover:bg-white/5 rounded"
+          >
+            Profile
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2 hover:bg-white/5 rounded"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -19,9 +126,7 @@ export default function Home() {
             <button className="hover:text-text transition">Pricing</button>
           </div>
 
-          <button className="bg-accent text-bg px-5 py-2 rounded-full text-small font-medium hover:opacity-90 transition">
-            Get Started
-          </button>
+          <HeaderAuth />
         </div>
       </nav>
 
@@ -46,9 +151,12 @@ export default function Home() {
           </p>
 
           <div className="mt-10 flex flex-col sm:flex-row justify-center gap-3">
-            <button className="bg-accent text-bg px-7 py-3 rounded-full font-medium hover:opacity-90 transition">
+            <Link
+              to="/Register"
+              className="bg-accent text-bg px-7 py-3 rounded-full font-medium hover:opacity-90 transition"
+            >
               Start Building
-            </button>
+            </Link>
 
             <button className="border border-white/10 text-text px-7 py-3 rounded-full hover:bg-white/5 transition">
               View Demo

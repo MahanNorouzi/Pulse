@@ -102,4 +102,18 @@ class Tweet
         $stmt->execute([$tweetId, $userId]);
         return $stmt->rowCount() > 0;
     }
+
+    public function clearAll(): void
+    {
+        // delete likes then tweets in a transaction
+        $this->db->beginTransaction();
+        try {
+            $this->db->exec('DELETE FROM likes');
+            $this->db->exec('DELETE FROM tweet');
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            throw $e;
+        }
+    }
 }

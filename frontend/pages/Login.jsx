@@ -1,4 +1,5 @@
 import React, { useReducer } from "react";
+import { useNavigate, Link } from "react-router";
 
 const API_BASE = "/Pulse/backend/index.php/api";
 
@@ -30,6 +31,7 @@ function reducer(state, action) {
 const Login = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const { email, password, result, loading, fieldError } = state;
+  const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -56,16 +58,15 @@ const Login = () => {
         // not JSON
       }
 
-      // handle auth errors
-      if (res.status === 401 || res.status === 422) {
-        const errMsg = body?.message || "Invalid credentials";
-        dispatch({ type: "setFieldError", value: errMsg });
+      // if login succeeded, navigate to feed
+      if (res.ok && (body?.success === true || body?.success === undefined)) {
+        navigate("/feed");
+        return;
       }
 
-      dispatch({
-        type: "setResult",
-        value: { status: res.status, body, raw: text },
-      });
+      // handle auth errors
+      const errMsg = body?.message || "Invalid credentials";
+      dispatch({ type: "setFieldError", value: errMsg });
     } catch (err) {
       dispatch({ type: "setResult", value: { error: String(err) } });
     } finally {
@@ -120,22 +121,7 @@ const Login = () => {
                   })
                 }
                 required
-                className="
-                  w-full
-                  px-4
-                  py-3
-                  rounded-xl
-                  bg-surface
-                  text-text
-                  placeholder:text-muted
-                  border
-                  border-transparent
-                  focus:outline-none
-                  focus:border-accent
-                  focus:ring-2
-                  focus:ring-accent/20
-                  transition-all
-                "
+                className="w-full px-4 py-3 rounded-xl bg-surface text-text placeholder:text-muted border border-transparent focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
               />
             </div>
 
@@ -160,56 +146,16 @@ const Login = () => {
                   })
                 }
                 required
-                className="
-                  w-full
-                  px-4
-                  py-3
-                  rounded-xl
-                  bg-surface
-                  text-text
-                  placeholder:text-muted
-                  border
-                  border-transparent
-                  focus:outline-none
-                  focus:border-accent
-                  focus:ring-2
-                  focus:ring-accent/20
-                  transition-all
-                "
+                className="w-full px-4 py-3 rounded-xl bg-surface text-text placeholder:text-muted border border-transparent focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
               />
             </div>
 
-            <div className="flex justify-end">
-              <button
-                type="button"
-                aria-label="Forgot password"
-                className="
-                  text-small
-                  text-accent
-                  hover:opacity-80
-                  transition
-                "
-              >
-                Forgot Password?
-              </button>
-            </div>
+            {/* Forgot Password removed per request */}
 
             <button
               type="submit"
               disabled={loading}
-              className="
-                w-full
-                py-3
-                rounded-xl
-                bg-accent
-                text-bg
-                font-semibold
-                hover:brightness-110
-                active:scale-[0.98]
-                transition-all
-                disabled:opacity-50
-                disabled:cursor-not-allowed
-              "
+              className="w-full py-3 rounded-xl bg-accent text-bg font-semibold hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Signing In..." : "Login"}
             </button>
@@ -220,23 +166,14 @@ const Login = () => {
             <div className="mt-4 text-sm text-red-600">{fieldError}</div>
           )}
 
-          {result && (
-            <div
-              className="
-                mt-6
-                rounded-xl
-                bg-surface
-                border
-                border-accent/10
-                p-4
-                overflow-auto
-              "
-            >
-              <pre className="text-small text-text whitespace-pre-wrap">
-                {JSON.stringify(result, null, 2)}
-              </pre>
-            </div>
-          )}
+          <div className="mt-4 text-center text-small">
+            <span className="text-muted">Not a user? </span>
+            <Link to="/Register" className="text-accent hover:underline">
+              Register
+            </Link>
+          </div>
+
+          {/* raw JSON response removed for UX; errors shown above */}
         </div>
 
         <p className="text-center text-muted text-small mt-6">

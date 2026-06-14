@@ -5,6 +5,9 @@ import "./index.css";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import Feed from "../pages/Feed";
+import Profile from "../pages/Profile";
+import ProtectedRoute from "../pages/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -18,6 +21,22 @@ const router = createBrowserRouter([
   {
     path: "/Register",
     element: <Register />,
+  },
+  {
+    path: "/feed",
+    element: (
+      <ProtectedRoute>
+        <Feed />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/profile/:username",
+    element: (
+      <ProtectedRoute>
+        <Profile />
+      </ProtectedRoute>
+    ),
   },
 ]);
 

@@ -13,6 +13,25 @@ class TweetController
         $this->tweet = new Tweet();
     }
 
+    public function clearAll(): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        if (empty($_SESSION['user_id'])) {
+            Response::error('Unauthorized', 401);
+        }
+
+        require_once __DIR__ . '/../models/User.php';
+        $uModel = new User();
+        $u = $uModel->findById($_SESSION['user_id']);
+        if (!isset($u['role']) || $u['role'] !== 'admin') {
+            Response::error('Forbidden', 403);
+        }
+
+        // perform safe deletes
+        $this->tweet->clearAll();
+        Response::success(null, 'All tweets deleted');
+    }
+
     public function create(): void
     {
         $data = json_decode(file_get_contents('php://input'), true) ?? [];
@@ -30,18 +49,32 @@ class TweetController
     public function delete(int $id): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
+        // ensure tweet exists
+        $tweet = $this->tweet->findById($id);
+        if (!$tweet) {
+            Response::error('Tweet not found', 404);
+        }
+
+        // determine current user and role
+        $currentUserId = $_SESSION['user_id'] ?? null;
         $isAdmin = false;
-        // fetch user role
-        if (!empty($_SESSION['user_id'])) {
+        if ($currentUserId) {
             require_once __DIR__ . '/../models/User.php';
             $uModel = new User();
-            $u = $uModel->findById($_SESSION['user_id']);
+            $u = $uModel->findById($currentUserId);
             $isAdmin = isset($u['role']) && $u['role'] === 'admin';
         }
 
-        if (!$this->tweet->delete($id, $_SESSION['user_id'] ?? 0, $isAdmin)) {
+        // permission: admin can delete any tweet; user can delete only own tweets
+        if (!$isAdmin && $tweet['user_id'] != $currentUserId) {
+            Response::error('Forbidden', 403);
+        }
+
+        if (!$this->tweet->delete($id, (int)($currentUserId ?? 0), $isAdmin)) {
             Response::error('Tweet not found or unauthorized', 404);
         }
+
         Response::success(null, 'Tweet deleted');
     }
 

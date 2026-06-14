@@ -1,8 +1,10 @@
 import React, { useEffect, useReducer } from "react";
+import { Link } from "react-router";
+// Register can be rendered inline in the Login page via `onSwitchToLogin` prop
 
 const API_BASE = "/Pulse/backend/index.php/api";
 
-const Register = () => {
+const Register = (props) => {
   const initialState = {
     username: "",
     name: "",
@@ -62,33 +64,26 @@ const Register = () => {
       return;
     }
 
+    // use direct username lookup endpoint for immediate feedback
     const controller = new AbortController();
     const timeout = setTimeout(() => {
       (async () => {
         try {
           dispatch({ type: "setChecking", value: true });
-
           const res = await fetch(
-            `${API_BASE}/search?q=${encodeURIComponent(username)}`,
-            {
-              credentials: "include",
-              signal: controller.signal,
-            },
+            `${API_BASE}/users/username/${encodeURIComponent(username)}`,
+            { credentials: "include", signal: controller.signal },
           );
 
-          if (!res.ok)
-            return dispatch({ type: "setUsernameStatus", value: "idle" });
-
-          const users = await res.json();
-          const exists =
-            Array.isArray(users) &&
-            users.some(
-              (u) => u.username?.toLowerCase() === username.toLowerCase(),
-            );
-          dispatch({
-            type: "setUsernameStatus",
-            value: exists ? "taken" : "available",
-          });
+          if (res.ok) {
+            // user exists
+            dispatch({ type: "setUsernameStatus", value: "taken" });
+          } else if (res.status === 404) {
+            // not found -> available
+            dispatch({ type: "setUsernameStatus", value: "available" });
+          } else {
+            dispatch({ type: "setUsernameStatus", value: "idle" });
+          }
         } catch (err) {
           if (err.name === "AbortError") return;
           dispatch({ type: "setUsernameStatus", value: "idle" });
@@ -96,7 +91,7 @@ const Register = () => {
           dispatch({ type: "setChecking", value: false });
         }
       })();
-    }, 600);
+    }, 300);
 
     return () => {
       clearTimeout(timeout);
@@ -147,6 +142,8 @@ const Register = () => {
           value: { type: "success", text: "Account created successfully 🎉" },
         });
         dispatch({ type: "resetFields" });
+        // redirect to feed after successful registration
+        window.location.replace("/feed");
       } else {
         dispatch({
           type: "setMessage",
@@ -235,11 +232,9 @@ const Register = () => {
                 {checkingUsername && (
                   <span className="text-muted">Checking username...</span>
                 )}
-
                 {!checkingUsername && usernameStatus === "available" && (
                   <span className="text-green-500">✓ Username available</span>
                 )}
-
                 {!checkingUsername && usernameStatus === "taken" && (
                   <span className="text-red-500">Username already taken</span>
                 )}
@@ -250,7 +245,6 @@ const Register = () => {
               <label htmlFor="register-name" className="block text-muted mb-2">
                 Full Name
               </label>
-
               <input
                 id="register-name"
                 type="text"
@@ -272,7 +266,6 @@ const Register = () => {
               <label htmlFor="register-email" className="block text-muted mb-2">
                 Email
               </label>
-
               <input
                 id="register-email"
                 type="email"
@@ -297,7 +290,6 @@ const Register = () => {
               >
                 Password
               </label>
-
               <div className="relative">
                 <input
                   id="register-password"
@@ -314,7 +306,6 @@ const Register = () => {
                   required
                   className="w-full px-4 py-3 rounded-xl bg-surface text-text border border-transparent focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20"
                 />
-
                 <button
                   type="button"
                   onClick={() => dispatch({ type: "toggleShowPassword" })}
@@ -333,7 +324,6 @@ const Register = () => {
                 >
                   ✓ 8+ characters
                 </p>
-
                 <p
                   className={
                     passwordChecks.uppercase ? "text-green-500" : "text-muted"
@@ -341,7 +331,6 @@ const Register = () => {
                 >
                   ✓ One uppercase letter
                 </p>
-
                 <p
                   className={
                     passwordChecks.number ? "text-green-500" : "text-muted"
@@ -362,6 +351,26 @@ const Register = () => {
               {loading ? "Creating Account..." : "Create Account"}
             </button>
           </form>
+
+          {/* allow parent to control switch back to login when rendered inline */}
+          {typeof props?.onSwitchToLogin === "function" ? (
+            <p className="text-center text-small text-muted mt-4">
+              Already have an account?{" "}
+              <button
+                onClick={() => props.onSwitchToLogin()}
+                className="text-accent hover:underline"
+              >
+                Login
+              </button>
+            </p>
+          ) : (
+            <p className="text-center text-small text-muted mt-4">
+              Already have an account?{" "}
+              <Link to="/login" className="text-accent hover:underline">
+                Login
+              </Link>
+            </p>
+          )}
         </div>
       </div>
     </div>
