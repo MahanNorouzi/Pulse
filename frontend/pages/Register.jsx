@@ -226,7 +226,9 @@ const Register = (props) => {
                   dispatch({
                     type: "setField",
                     field: "username",
-                    value: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""),
+                    value: e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9_]/g, ""),
                   })
                 }
                 maxLength={30}
