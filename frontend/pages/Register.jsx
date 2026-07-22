@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { Link } from "react-router";
 // Register can be rendered inline in the Login page via `onSwitchToLogin` prop
 
@@ -134,7 +134,9 @@ const Register = (props) => {
 
       try {
         body = text ? JSON.parse(text) : null;
-      } catch {}
+      } catch {
+        body = null;
+      }
 
       if (res.ok) {
         dispatch({

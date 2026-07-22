@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 const API_BASE = "/Pulse/backend/index.php/api";
@@ -21,7 +21,7 @@ export default function ProtectedRoute({ children }) {
           setAuthed(false);
           navigate("/login");
         }
-      } catch (err) {
+      } catch {
         if (!mounted) return;
         setAuthed(false);
         navigate("/login");

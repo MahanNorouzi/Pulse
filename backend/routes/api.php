@@ -4,6 +4,7 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/TweetController.php';
 require_once __DIR__ . '/../controllers/UserController.php';
 require_once __DIR__ . '/../controllers/FollowController.php';
+require_once __DIR__ . '/../models/Follow.php';
 // comments removed: no longer supported
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 

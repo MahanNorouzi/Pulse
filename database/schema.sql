@@ -15,6 +15,7 @@ CREATE TABLE users (
     full_name VARCHAR(100),
     bio TEXT,
     profile_image VARCHAR(255) DEFAULT 'default.jpg',
+    role VARCHAR(30) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_username (username),
     INDEX idx_email (email)
@@ -61,6 +62,10 @@ CREATE TABLE likes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
--- Test User 
-INSERT INTO users (username, email, password, full_name, bio) VALUES
-('testuser', 'test@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Test User', 'This is a test account');
+-- Test User And Admin User
+-- password for both users is 'password' hashed using bcrypt
+INSERT INTO users (username, email, password, full_name, bio, role) VALUES
+('testuser', 'test@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Test User', 'This is a test account', 'user');
+
+INSERT INTO users (username, email, password, full_name, role) VALUES
+('admin', 'admin@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Admin User', 'admin');

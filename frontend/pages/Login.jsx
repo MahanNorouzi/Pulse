@@ -1,4 +1,4 @@
-import React, { useReducer } from "react";
+import { useReducer } from "react";
 import { useNavigate, Link } from "react-router";
 
 const API_BASE = "/Pulse/backend/index.php/api";
@@ -6,7 +6,6 @@ const API_BASE = "/Pulse/backend/index.php/api";
 const initialState = {
   email: "",
   password: "",
-  result: null,
   loading: false,
   fieldError: null,
 };
@@ -15,8 +14,6 @@ function reducer(state, action) {
   switch (action.type) {
     case "setField":
       return { ...state, [action.field]: action.value };
-    case "setResult":
-      return { ...state, result: action.value };
     case "setLoading":
       return { ...state, loading: action.value };
     case "setFieldError":
@@ -30,14 +27,13 @@ function reducer(state, action) {
 
 const Login = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { email, password, result, loading, fieldError } = state;
+  const { email, password, loading, fieldError } = state;
   const navigate = useNavigate();
 
   const submit = async (e) => {
     e.preventDefault();
 
     dispatch({ type: "setLoading", value: true });
-    dispatch({ type: "setResult", value: null });
     dispatch({ type: "setFieldError", value: null });
 
     try {
@@ -54,7 +50,7 @@ const Login = () => {
       let body = null;
       try {
         body = text ? JSON.parse(text) : null;
-      } catch (e) {
+      } catch {
         // not JSON
       }
 
@@ -67,8 +63,11 @@ const Login = () => {
       // handle auth errors
       const errMsg = body?.message || "Invalid credentials";
       dispatch({ type: "setFieldError", value: errMsg });
-    } catch (err) {
-      dispatch({ type: "setResult", value: { error: String(err) } });
+    } catch {
+      dispatch({
+        type: "setFieldError",
+        value: "Network error. Please try again.",
+      });
     } finally {
       dispatch({ type: "setLoading", value: false });
     }

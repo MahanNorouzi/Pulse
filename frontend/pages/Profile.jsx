@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 
 const API_BASE = "/Pulse/backend/index.php/api";
@@ -23,7 +23,7 @@ export default function Profile() {
   async function parseJsonSafe(res, label) {
     try {
       return await res.clone().json();
-    } catch (err) {
+    } catch {
       try {
         const txt = await res.clone().text();
         console.error(`${label} - invalid JSON response:\n`, txt);
@@ -49,7 +49,9 @@ export default function Profile() {
             window.__profile_cur_user = cur;
             console.debug("Profile: current user", cur);
           }
-        } catch (e) {}
+        } catch {
+          // Authentication is optional while loading a public profile.
+        }
         // attempt to find user via search endpoint
         const res = await fetch(
           `${API_BASE}/search?q=${encodeURIComponent(username)}`,
@@ -163,7 +165,7 @@ export default function Profile() {
       }
     })();
     return () => (mounted = false);
-  }, [username]);
+  }, [username, currentUser]);
 
   // listen for follow events and refresh requests from other pages (feed)
   useEffect(() => {
@@ -246,7 +248,7 @@ export default function Profile() {
       window.removeEventListener("profile:refresh", onRefresh);
       delete window.__profile_refresh;
     };
-  }, [user, currentUser]);
+  }, [user, currentUser, username]);
 
   async function handleDelete(tweet) {
     if (!currentUser) return;
@@ -563,9 +565,7 @@ export default function Profile() {
 
                       <div className="mt-4 flex items-center justify-between">
                         <span className="text-small text-muted">
-                          {new Date(
-                            t.created_at || Date.now(),
-                          ).toLocaleString()}
+                          {new Date(t.created_at || "").toLocaleString()}
                         </span>
 
                         {(currentUser?.role === "admin" ||

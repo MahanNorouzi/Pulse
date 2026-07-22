@@ -40,13 +40,17 @@ function request($method, $path, $data = null, $cookieJar = null, $cookieFile = 
 
 function ok($cond, $msg)
 {
+    global $failures;
     if ($cond) {
         echo "[OK] $msg\n";
         return true;
     }
     echo "[FAIL] $msg\n";
+    $failures++;
     return false;
 }
+
+$failures = 0;
 
 echo "Base URL: $base\n";
 
@@ -158,4 +162,4 @@ echo "\nSmoke test finished.\n";
 // (simple logic: if any FAIL lines were printed, return 1)
 
 
-exit(0);
+exit($failures === 0 ? 0 : 1);

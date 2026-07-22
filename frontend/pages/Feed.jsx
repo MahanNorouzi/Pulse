@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const API_BASE = "/Pulse/backend/index.php/api";
 
@@ -18,30 +18,6 @@ export default function Feed() {
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [followingIds, setFollowingIds] = useState(new Set());
-
-  useEffect(() => {
-    let mounted = true;
-    const fetchFeed = async () => {
-      try {
-        await loadCurrentUser();
-        await loadTweets();
-      } catch (e) {
-        console.error("failed to load tweets", e);
-      }
-    };
-
-    fetchFeed();
-
-    return () => (mounted = false);
-  }, []);
-
-  // polling: refresh tweets every 5s
-  useEffect(() => {
-    const id = setInterval(() => {
-      loadTweets().catch((e) => console.error("poll error", e));
-    }, 5000);
-    return () => clearInterval(id);
-  }, []);
 
   // listen for profile follow changes (so follow/unfollow in Profile updates Feed state)
   useEffect(() => {
@@ -151,6 +127,26 @@ export default function Feed() {
     }
   }
 
+  useEffect(() => {
+    const fetchFeed = async () => {
+      try {
+        await loadCurrentUser();
+        await loadTweets();
+      } catch (error) {
+        console.error("failed to load tweets", error);
+      }
+    };
+
+    fetchFeed();
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      loadTweets().catch((error) => console.error("poll error", error));
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
+
   async function handleLogout() {
     try {
       const res = await fetch(`${API_BASE}/logout`, {
@@ -185,7 +181,9 @@ export default function Feed() {
       let body = null;
       try {
         body = text ? JSON.parse(text) : null;
-      } catch {}
+      } catch {
+        body = null;
+      }
       if (res.ok) {
         // reload feed from server to get canonical data (including likes)
         try {
@@ -369,8 +367,8 @@ export default function Feed() {
           }),
         );
         window.dispatchEvent(new Event("profile:refresh"));
-      } catch (e) {
-        /* ignore if client doesn't support CustomEvent */
+      } catch {
+        return;
       }
       // if profile of that user is loaded in this page (unlikely) we could update counts
     } catch (e) {
@@ -580,9 +578,7 @@ export default function Feed() {
                         </div>{" "}
                         <div className="text-muted text-small mt-1">
                           {" "}
-                          {new Date(
-                            t.created_at || Date.now(),
-                          ).toLocaleString()}{" "}
+                          {new Date(t.created_at || "").toLocaleString()}{" "}
                         </div>{" "}
                       </div>{" "}
                     </div>{" "}

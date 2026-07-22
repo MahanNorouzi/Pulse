@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 const API_BASE = "/Pulse/backend/index.php/api";
@@ -14,7 +14,7 @@ function useCurrentUser() {
         const j = await res.json();
         const cur = j?.data ?? null;
         if (mounted) setUser(cur);
-      } catch (e) {
+      } catch {
         // ignore
       }
     })();
@@ -24,7 +24,7 @@ function useCurrentUser() {
 }
 
 function HeaderAuth() {
-  const [currentUser, setCurrentUser] = useCurrentUser();
+  const [currentUser] = useCurrentUser();
   const [open, setOpen] = useState(false);
 
   async function handleLogout() {
@@ -35,8 +35,8 @@ function HeaderAuth() {
       });
       if (res.ok) window.location.replace("/login");
       else alert("Logout failed");
-    } catch (e) {
-      console.error("logout error", e);
+    } catch (error) {
+      console.error("logout error", error);
       alert("Logout failed");
     }
   }

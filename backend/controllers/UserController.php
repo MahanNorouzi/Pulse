@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/Follow.php';
 require_once __DIR__ . '/../utils/Response.php';
 
 class UserController
@@ -54,16 +55,16 @@ class UserController
 
     public function followers(int $id): void
     {
-        $limit = (int) ($_GET['limit'] ?? 50);
-        $offset = (int) ($_GET['offset'] ?? 0);
+        $limit = min(100, max(1, (int) ($_GET['limit'] ?? 50)));
+        $offset = max(0, (int) ($_GET['offset'] ?? 0));
         $followers = (new Follow())->getFollowers($id, $limit, $offset);
         Response::success($followers);
     }
 
     public function following(int $id): void
     {
-        $limit = (int) ($_GET['limit'] ?? 50);
-        $offset = (int) ($_GET['offset'] ?? 0);
+        $limit = min(100, max(1, (int) ($_GET['limit'] ?? 50)));
+        $offset = max(0, (int) ($_GET['offset'] ?? 0));
         $following = (new Follow())->getFollowing($id, $limit, $offset);
         Response::success($following);
     }
@@ -74,8 +75,8 @@ class UserController
         if ($q === '') {
             Response::error('Query required', 422);
         }
-        $limit = (int) ($_GET['limit'] ?? 20);
-        $offset = (int) ($_GET['offset'] ?? 0);
+        $limit = min(100, max(1, (int) ($_GET['limit'] ?? 20)));
+        $offset = max(0, (int) ($_GET['offset'] ?? 0));
         $results = $this->user->search($q, $limit, $offset);
         Response::success($results);
     }

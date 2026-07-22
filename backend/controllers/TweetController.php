@@ -91,8 +91,8 @@ class TweetController
     public function feed(): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $limit = (int) ($_GET['limit'] ?? 20);
-        $offset = (int) ($_GET['offset'] ?? 0);
+        $limit = min(100, max(1, (int) ($_GET['limit'] ?? 20)));
+        $offset = max(0, (int) ($_GET['offset'] ?? 0));
         $tweets = $this->tweet->getFeed($limit, $offset);
         Response::success($tweets);
     }
@@ -100,8 +100,8 @@ class TweetController
     public function userTweets(int $userId): void
     {
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-        $limit = (int) ($_GET['limit'] ?? 20);
-        $offset = (int) ($_GET['offset'] ?? 0);
+        $limit = min(100, max(1, (int) ($_GET['limit'] ?? 20)));
+        $offset = max(0, (int) ($_GET['offset'] ?? 0));
         $tweets = $this->tweet->getUserTweets($userId, $limit, $offset);
         Response::success($tweets);
     }

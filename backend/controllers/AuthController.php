@@ -38,6 +38,7 @@ class AuthController
         $id = $this->user->create($data['username'], $data['email'], $data['password'], $data['name']);
 
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $id;
 
         Response::success(['id' => $id], 'Registered successfully', 201);
@@ -61,6 +62,7 @@ class AuthController
         }
 
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
 
         unset($user['password']);

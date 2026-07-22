@@ -1,4 +1,10 @@
 {
+  "private": true,
+  "scripts": {
+    "lint": "npm --prefix frontend run lint",
+    "build": "npm --prefix frontend run build",
+    "check": "npm run lint && npm run build"
+  },
   "devDependencies": {
     "react-doctor": "^0.5.1"
   }
