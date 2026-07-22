@@ -28,6 +28,12 @@ class AuthController
             Response::error('Validation failed', 422, $v->getErrors());
         }
 
+        if (!preg_match('/^[a-z0-9_]+$/', $data['username'])) {
+            Response::error('Validation failed', 422, [
+                'username' => ['Username may contain only lowercase letters, numbers, and underscores'],
+            ]);
+        }
+
         if ($this->user->findByEmail($data['email'])) {
             Response::error('Email already taken', 409);
         }

@@ -13,7 +13,6 @@ export default function Feed() {
   const [tweets, setTweets] = useState([]);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
-  const [dir, setDir] = useState("auto");
   const [currentUser, setCurrentUser] = useState(null);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -207,7 +206,6 @@ export default function Feed() {
           console.error("failed to refresh feed", err);
         }
         setContent("");
-        setDir("auto");
       } else {
         console.error("tweet failed", body || text);
       }
@@ -217,9 +215,6 @@ export default function Feed() {
       setLoading(false);
     }
   }
-
-  const toggleDir = () =>
-    setDir((d) => (d === "ltr" ? "rtl" : d === "rtl" ? "auto" : "ltr"));
 
   async function handleLike(tweet) {
     const id = tweet.id;
@@ -480,7 +475,7 @@ export default function Feed() {
               {" "}
               <textarea
                 id="tweet-content"
-                dir={dir}
+                dir="auto"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="What's happening?"
@@ -489,14 +484,6 @@ export default function Feed() {
               />{" "}
               <div className="flex justify-between items-center mt-4">
                 {" "}
-                <button
-                  type="button"
-                  onClick={toggleDir}
-                  className="text-muted text-small"
-                >
-                  {" "}
-                  {dir === "auto" ? "Auto" : dir.toUpperCase()}{" "}
-                </button>{" "}
                 <button
                   type="submit"
                   disabled={loading}
@@ -556,10 +543,9 @@ export default function Feed() {
                                     false,
                                   )
                                 }
-                                className=" px-3 h-8 rounded-full bg-surface "
+                                className="px-3 h-8 rounded-full bg-surface"
                               >
-                                {" "}
-                                Following{" "}
+                                Following
                               </button>
                             ) : (
                               <button
@@ -569,12 +555,11 @@ export default function Feed() {
                                     true,
                                   )
                                 }
-                                className=" px-3 h-8 rounded-full bg-accent text-bg "
+                                className="px-3 h-8 rounded-full bg-accent text-bg"
                               >
-                                {" "}
-                                Follow{" "}
+                                Follow
                               </button>
-                            ))}{" "}
+                            ))}
                         </div>{" "}
                         <div className="text-muted text-small mt-1">
                           {" "}

@@ -57,6 +57,7 @@ const Register = (props) => {
     usernameStatus,
     message,
   } = state;
+  const usernameValid = /^[a-z0-9_]+$/.test(username);
 
   useEffect(() => {
     if (!username.trim()) {
@@ -103,6 +104,16 @@ const Register = (props) => {
     e.preventDefault();
 
     dispatch({ type: "setMessage", value: null });
+
+    if (!usernameValid) {
+      return dispatch({
+        type: "setMessage",
+        value: {
+          type: "error",
+          text: "Username may contain only lowercase letters, numbers, and underscores.",
+        },
+      });
+    }
 
     if (usernameStatus === "taken") {
       return dispatch({
@@ -215,9 +226,12 @@ const Register = (props) => {
                   dispatch({
                     type: "setField",
                     field: "username",
-                    value: e.target.value,
+                    value: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""),
                   })
                 }
+                maxLength={30}
+                pattern="[a-z0-9_]+"
+                title="Use only lowercase letters, numbers, and underscores."
                 placeholder="Choose a username"
                 required
                 className={`w-full px-4 py-3 rounded-xl bg-surface text-text border transition-all focus:outline-none focus:ring-2
@@ -346,7 +360,10 @@ const Register = (props) => {
             <button
               type="submit"
               disabled={
-                loading || checkingUsername || usernameStatus === "taken"
+                loading ||
+                checkingUsername ||
+                usernameStatus === "taken" ||
+                !usernameValid
               }
               className="w-full py-3 rounded-xl bg-accent text-bg font-semibold hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
