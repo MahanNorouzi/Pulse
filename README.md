@@ -195,10 +195,6 @@ For deployment, use HTTPS, enable secure session cookies, use a dedicated non-ro
 - Image upload validation and storage hardening
 - Production deployment configuration
 
-## CV Description
-
-> **Pulse** — University full-stack project built with PHP, MySQL, React, and Vite. Implemented a RESTful API with session authentication, role-based access control, social interactions, relational database design, and automated API smoke testing.
-
 ## License
 
 This project was created for educational and portfolio purposes.
