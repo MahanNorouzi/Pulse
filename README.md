@@ -1,34 +1,60 @@
 # Pulse
 
-> A lightweight full-stack social media platform inspired by X (formerly Twitter), built with PHP, MySQL, React, and Vite.
+![Pulse Feed](assets/intro.gif)
 
-Pulse is a university project created to demonstrate practical full-stack web development. It combines a PHP REST API with a React frontend and includes authentication, social interactions, database design, role-based permissions, and automated API testing.
+**Simple by design. Built to connect.**
 
-## Project Context
+Pulse is a lightweight full-stack social platform — authentication, profiles, posts, likes, follows, search, and role-based permissions, built end to end rather than mocked on top of a frontend template.
 
-Pulse was developed as a university portfolio project with a focus on:
+It started as a university project. The goal wasn't a pretty UI over fake JSON — it was learning how a real application fits together: a relational schema, a REST API, session auth, and a React frontend that actually talks to all of it.
 
-- Designing and consuming a RESTful API
-- Building a relational MySQL data model
-- Implementing session-based authentication
-- Integrating a React frontend with a PHP backend
-- Applying authorization rules for regular users and administrators
-- Validating application behavior with automated smoke tests
+---
+
+## A Look at Pulse
+
+### Feed
+
+![Pulse Feed](assets/feed.png)
+
+A focused timeline for posts from the people you follow — nothing else competing for attention.
+
+### Profile
+
+![Pulse Profile](assets/profile.png)
+
+Activity, followers, following, and posts in one place.
+
+### Create an Account
+
+![Pulse Register](assets/register.png)
+
+Registration with live username availability checks and clear password requirements.
+
+---
+
+## Why This Project Exists
+
+Pulse was built to go deeper than a frontend-only portfolio piece. It's a full stack, deliberately:
+
+- Designing and consuming a REST-style API
+- Modeling relational data in MySQL — foreign keys, indexes, constraints
+- Implementing session-based authentication with HTTP-only cookies
+- Connecting a React frontend to a PHP backend over a real network boundary
+- Enforcing authorization rules for users vs. administrators
+- Verifying behavior with automated smoke tests, not just manual clicking
 
 ## Features
 
-- User registration and login
-- HTTP-only session-cookie authentication
-- Username validation using lowercase letters, numbers, and underscores
-- Tweet creation and feed display
-- Like and unlike actions
-- User profiles with editable profile information
-- Follow and unfollow functionality
+- User registration and login with HTTP-only session cookies
+- Username validation and availability checks
+- Post creation and feed display
+- Like / unlike
+- Editable user profiles
+- Follow / unfollow
 - User search
-- Role-based permissions for regular users and administrators
-- Admin tweet deletion and tweet clearing
-- Responsive React and Vite frontend
-- PHP API smoke tests and PHP syntax validation
+- Role-based permissions, including admin post deletion and moderation
+- Responsive React frontend
+- PHP API smoke tests and syntax validation in CI-style scripts
 
 ## Tech Stack
 
@@ -39,7 +65,7 @@ Pulse was developed as a university portfolio project with a focus on:
 | Database    | MySQL, InnoDB, foreign keys, indexed queries |
 | Development | XAMPP, Node.js, npm, cURL                    |
 
-## Application Structure
+## Project Structure
 
 ```text
 Pulse/
@@ -62,17 +88,19 @@ Pulse/
 └── README.md
 ```
 
+---
+
 ## Getting Started
 
 ### Prerequisites
 
 - XAMPP with Apache and MySQL
-- PHP with PDO MySQL and cURL enabled
+- PHP with PDO (MySQL) and cURL enabled
 - Node.js and npm
 
 ### 1. Clone the repository
 
-Place the project inside the XAMPP `htdocs` directory:
+Place the project inside your XAMPP `htdocs` directory:
 
 ```text
 xampp/
@@ -82,25 +110,25 @@ xampp/
 
 ### 2. Configure the database
 
-Create a MySQL database, then import:
+Create a MySQL database and import the schema:
 
 ```text
 database/schema.sql
 ```
 
-The schema creates all required tables, adds role-based access control, and seeds development accounts.
+This creates the required tables, relationships, indexes, role-based access control, and development accounts.
 
 ### 3. Configure the backend
 
 Copy the example environment file:
 
 ```powershell
-Copy-Item backend/.env.example backend/.env
+Copy-Item backend\.env.example backend\.env
 ```
 
 Update the database settings in `backend/.env`:
 
-```dotenv
+```env
 DB_HOST=localhost
 DB_NAME=your_database
 DB_USER=your_username
@@ -109,44 +137,45 @@ DB_PASS=your_password
 
 ### 4. Install frontend dependencies
 
-```powershell
+```bash
 npm --prefix frontend install
 ```
 
 ### 5. Start the application
 
-Start Apache and MySQL in XAMPP, then run the frontend development server:
+Start Apache and MySQL through XAMPP, then run the frontend dev server:
 
-```powershell
+```bash
 npm --prefix frontend run dev
 ```
 
-Open the local Vite URL displayed in the terminal. The Vite development server proxies `/Pulse/backend` requests to Apache.
+Open the local Vite URL shown in the terminal. The Vite dev server proxies `/Pulse/backend` requests to Apache.
 
-## Development Accounts
+### Development Accounts
 
-The schema includes development-only accounts for local testing:
+Development-only accounts are included for local testing:
 
-| Email               | Password   | Role  |
-| ------------------- | ---------- | ----- |
-| `test@example.com`  | `password` | User  |
-| `admin@example.com` | `password` | Admin |
+| Email             | Password | Role  |
+| ----------------- | -------- | ----- |
+| test@example.com  | password | User  |
+| admin@example.com | password | Admin |
 
-Change or remove these accounts before deploying the application publicly.
+Local development only — change or remove these before deploying anywhere public.
+
+---
 
 ## Testing and Verification
 
-Run frontend linting and the production build from the repository root:
+Run frontend linting and a production build from the repository root:
 
-```powershell
+```bash
 npm run check
 ```
 
 Validate PHP syntax with the XAMPP PHP executable:
 
 ```powershell
-Get-ChildItem backend,tests -Recurse -Filter *.php |
-ForEach-Object { & C:\xampp\php\php.exe -l $_.FullName }
+Get-ChildItem backend,tests -Recurse -Filter *.php | ForEach-Object { & C:\xampp\php\php.exe -l $_.FullName }
 ```
 
 With Apache, MySQL, and the configured database running, execute the API smoke test:
@@ -155,46 +184,48 @@ With Apache, MySQL, and the configured database running, execute the API smoke t
 & C:\xampp\php\php.exe tests\api_test.php
 ```
 
-The smoke test covers authentication, registration, tweet creation, feed retrieval, following, likes, ownership checks, and admin deletion permissions. It creates temporary test data.
+The smoke test covers authentication, registration, post creation, feed retrieval, following, likes, ownership checks, and admin deletion permissions. Temporary test data is created during the run.
 
 ## API
 
-The API base path is:
+Base path:
 
 ```text
 /Pulse/backend/index.php/api
 ```
 
-Authentication is handled with PHP session cookies. Main endpoint groups include:
+Authentication is handled through PHP session cookies.
 
-- `/register`, `/login`, `/logout`, and `/me`
-- `/tweets` and `/tweets/{id}`
-- `/tweets/{id}/like`
-- `/users/{id}` and `/users/username/{username}`
-- `/users/{id}/follow`
-- `/users/{id}/followers` and `/users/{id}/following`
-- `/search`
+| Group   | Endpoints                                                              |
+| ------- | ---------------------------------------------------------------------- |
+| Auth    | `/register`, `/login`, `/logout`, `/me`                                |
+| Posts   | `/tweets`, `/tweets/{id}`, `/tweets/{id}/like`                         |
+| Users   | `/users/{id}`, `/users/username/{username}`                            |
+| Follows | `/users/{id}/follow`, `/users/{id}/followers`, `/users/{id}/following` |
+| Search  | `/search`                                                              |
 
 ## Security Notes
 
-Do not commit any of the following:
+Never commit:
 
 - `backend/.env`
 - Database credentials
 - Session cookies or cookie jars
 - Private uploaded files
 
-For deployment, use HTTPS, enable secure session cookies, use a dedicated non-root database account, and replace the seeded development credentials.
+Before deploying anywhere beyond local development: use HTTPS, enable secure session cookies, use a dedicated non-root database account, and replace the seeded development credentials.
 
-## Future Improvements
+## Roadmap
+
+Pulse is intentionally a work in progress:
 
 - Automated CI/CD pipeline
 - Docker-based development setup
-- Pagination and infinite scrolling in the frontend
-- Improved API error presentation in the UI
+- Pagination and infinite scrolling
+- Improved API error presentation
 - Image upload validation and storage hardening
 - Production deployment configuration
 
 ## License
 
-This project was created for educational and portfolio purposes.
+Pulse was built for educational and portfolio purposes.

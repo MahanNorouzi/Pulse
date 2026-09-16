@@ -1,5 +1,10 @@
 @import "tailwindcss";
+
 @theme {
+  /* =========================
+     COLORS
+     ========================= */
+
   --color-bg: #101214;
   --color-surface: #181b1f;
   --color-card: #21252b;
@@ -10,7 +15,13 @@
   --color-accent: #c9a86a;
   --color-danger: #c0392b;
 
-  --font-sans: "Inter", sans-serif;
+  /* =========================
+     TYPOGRAPHY
+     ========================= */
+
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-text: "Inter", system-ui, sans-serif;
 
   --text-h1: 2.25rem;
   --text-h2: 1.875rem;
@@ -25,4 +36,54 @@
   --lh-tight: 1.2;
   --lh-normal: 1.5;
   --lh-relaxed: 1.7;
+
+  /* =========================
+     RADIUS
+     ========================= */
+
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+
+  /* =========================
+     SHADOWS
+     ========================= */
+
+  --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.25);
+  --shadow-accent: 0 10px 35px rgba(201, 168, 106, 0.12);
+}
+
+/* =========================
+   DARK MODE BASE
+   ========================= */
+
+@layer base {
+  html {
+    background: #101214;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: #101214;
+    color: #f4f1eb;
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  #root {
+    min-height: 100vh;
+    background: #101214;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::selection {
+    background: rgba(201, 168, 106, 0.25);
+    color: #f4f1eb;
+  }
 }
